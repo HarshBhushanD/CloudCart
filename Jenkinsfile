@@ -2,10 +2,6 @@ pipeline {
 
     agent any
 
-    environment {
-        DOCKERHUB_USERNAME = credentials('dockerhub-creds')
-    }
-
     stages {
 
         stage('Checkout') {
@@ -46,18 +42,15 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-
-                sh '''
+                sh """
                     docker build \
-                    -t ${DOCKERHUB_USERNAME}/cloudcart-auth:${BUILD_NUMBER} \
+                    -t harshbhushandixit/cloudcart-auth:${BUILD_NUMBER} \
                     ./services/auth-service
-                '''
 
-                sh '''
                     docker build \
-                    -t ${DOCKERHUB_USERNAME}/cloudcart-product:${BUILD_NUMBER} \
+                    -t harshbhushandixit/cloudcart-product:${BUILD_NUMBER} \
                     ./services/product-service
-                '''
+                """
             }
         }
 
@@ -70,7 +63,6 @@ pipeline {
                         passwordVariable: 'DOCKER_PASS'
                     )
                 ]) {
-
                     sh '''
                         echo "$DOCKER_PASS" | docker login \
                         -u "$DOCKER_USER" \
@@ -82,16 +74,10 @@ pipeline {
 
         stage('Push Images') {
             steps {
-
-                sh '''
-                    docker push \
-                    ${DOCKERHUB_USERNAME}/cloudcart-auth:${BUILD_NUMBER}
-                '''
-
-                sh '''
-                    docker push \
-                    ${DOCKERHUB_USERNAME}/cloudcart-product:${BUILD_NUMBER}
-                '''
+                sh """
+                    docker push harshbhushandixit/cloudcart-auth:${BUILD_NUMBER}
+                    docker push harshbhushandixit/cloudcart-product:${BUILD_NUMBER}
+                """
             }
         }
     }
