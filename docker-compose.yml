@@ -1,0 +1,190 @@
+# services:
+# #auth database
+#   postgres-auth:
+#     image: postgres:16-alpine
+#     container_name: cloudcart-postgres-auth
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: 
+#       POSTGRES_DB: cloudcart_auth
+#     volumes:
+#       - ./postgres-data:/var/lib/postgresql/data
+#     healthcheck:
+#       test: ["CMD-SHELL", "pg_isready -U postgres -d cloudcart_auth"]
+#       interval: 5s
+#       timeout: 5s
+#       retries: 5
+# # product database
+
+#   postgres-product:
+#     image: postgres:16-alpine
+#     container_name: cloudcart-postgres-product
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: 
+#       POSTGRES_DB: cloudcart_products
+#     volumes:
+#       - ./postgres-data:/var/lib/postgresql/data
+#     healthcheck:
+#       test: ["CMD-SHELL", "pg_isready -U postgres -d cloudcart_products"]
+#       interval: 5s
+#       timeout: 5s
+#       retries: 5
+# # auth service
+
+#   auth-service:
+#     build:
+#       context: ./services/auth-service
+#       dockerfile: Dockerfile
+#     container_name: cloudcart-auth-service
+#     environment:
+#       PORT: 5001
+#       DB_USER: postgres
+#       DB_HOST: postgres-auth
+#       DB_NAME: cloudcart_auth
+#       DB_PASSWORD: 
+#       DB_PORT: 5432
+#     ports:
+#       - "5001:5001"
+      
+#     depends_on:
+#       postgres-auth:
+#         condition: service_healthy
+# # product service
+
+#   product-service:
+#     build:
+#       context: ./services/product-service
+#       dockerfile: Dockerfile
+#     container_name: cloudcart-product-service
+#     environment:
+#       - PORT: 5002
+#       - DB_USER: postgres
+#       - DB_HOST: postgres-product
+#       - DB_NAME: cloudcart_products
+#       - DB_PASSWORD: 
+#       - DB_PORT: 5432
+#     ports:
+#       - "5002:5002"
+#     depends_on:
+#       postgres-product:
+#         condition: service_healthy
+
+# volumes:
+#   - auth_postgres_data:/var/lib/postgresql/data
+#   - ./docker/postgres/init-auth.sql:/docker-entrypoint-initdb.d/init.sql
+#   - product_postgres_data:/var/lib/postgresql/data
+#   - ./docker/postgres/init-products.sql:/docker-entrypoint-initdb.d/init.sql
+
+
+services:
+
+  # =========================
+  # AUTH DATABASE
+  # =========================
+
+  postgres-auth:
+    image: postgres:16-alpine
+    container_name: cloudcart-postgres-auth
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: P@ndit1206
+      POSTGRES_DB: cloudcart_auth
+
+    volumes:
+      - auth_postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-auth.sql:/docker-entrypoint-initdb.d/init.sql
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cloudcart_auth"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
+  # =========================
+  # PRODUCT DATABASE
+  # =========================
+
+  postgres-product:
+    image: postgres:16-alpine
+    container_name: cloudcart-postgres-product
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: P@ndit1206
+      POSTGRES_DB: cloudcart_products
+
+    volumes:
+      - product_postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-products.sql:/docker-entrypoint-initdb.d/init.sql
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cloudcart_products"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
+  # =========================
+  # AUTH SERVICE
+  # =========================
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+
+    container_name: cloudcart-auth-service
+
+    environment:
+      PORT: 5001
+      DB_USER: postgres
+      DB_HOST: postgres-auth
+      DB_NAME: cloudcart_auth
+      DB_PASSWORD: P@ndit1206
+      DB_PORT: 5432
+
+    ports:
+      - "5001:5001"
+
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+
+
+  # =========================
+  # PRODUCT SERVICE
+  # =========================
+
+  product-service:
+    build:
+      context: ./services/product-service
+      dockerfile: Dockerfile
+
+    container_name: cloudcart-product-service
+
+    environment:
+      PORT: 5002
+      DB_USER: postgres
+      DB_HOST: postgres-product
+      DB_NAME: cloudcart_products
+      DB_PASSWORD: P@ndit1206
+      DB_PORT: 5432
+
+    ports:
+      - "5002:5002"
+
+    depends_on:
+      postgres-product:
+        condition: service_healthy
+
+
+# =========================
+# NAMED VOLUMES
+# =========================
+
+volumes:
+  auth_postgres_data:
+  product_postgres_data:
