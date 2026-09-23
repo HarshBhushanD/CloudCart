@@ -27,3 +27,4 @@ docker-data/
 *.tfstate.*
 *.tfvars
 !terraform.tfvars.example
+terraform/tfplan
