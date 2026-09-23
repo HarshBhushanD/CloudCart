@@ -10,5 +10,5 @@ terraform {
 }
 
 provider "kubernetes" {
-  config_path = "C:/Users/harsh/.kube/config"
+  config_path = var.kubeconfig
 }
