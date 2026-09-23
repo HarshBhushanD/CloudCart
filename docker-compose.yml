@@ -145,6 +145,8 @@ services:
       DB_NAME: cloudcart_auth
       DB_PASSWORD: P@ndit1206
       DB_PORT: 5432
+      JWT_SECRET: change_this_dev_secret
+
 
     ports:
       - "5001:5001"
@@ -153,6 +155,25 @@ services:
       postgres-auth:
         condition: service_healthy
 
+
+  postgres-order:
+    image: postgres:16-alpine
+    container_name: cloudcart-postgres-order
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: P@ndit1206
+      POSTGRES_DB: cloudcart_orders
+
+    volumes:
+      - order_postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-orders.sql:/docker-entrypoint-initdb.d/init.sql
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cloudcart_orders"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   # =========================
   # PRODUCT SERVICE
@@ -180,6 +201,32 @@ services:
       postgres-product:
         condition: service_healthy
 
+  order-service:
+    build:
+      context: ./services/order-service
+      dockerfile: Dockerfile
+
+    container_name: cloudcart-order-service
+
+    environment:
+      PORT: 5003
+      DB_USER: postgres
+      DB_HOST: postgres-order
+      DB_NAME: cloudcart_orders
+      DB_PASSWORD: P@ndit1206
+      DB_PORT: 5432
+      JWT_SECRET: change_this_dev_secret
+      PRODUCT_SERVICE_URL: http://product-service:5002
+
+    ports:
+      - "5003:5003"
+
+    depends_on:
+      postgres-order:
+        condition: service_healthy
+      product-service:
+        condition: service_started
+
 
 # =========================
 # NAMED VOLUMES
@@ -188,3 +235,4 @@ services:
 volumes:
   auth_postgres_data:
   product_postgres_data:
+  order_postgres_data:

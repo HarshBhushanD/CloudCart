@@ -1,0 +1,28 @@
+---
+- name: CloudCart DevOps Environment
+  hosts: local
+  become: false
+
+  tasks:
+
+    - name: Verify Docker
+      command: docker --version
+      register: docker_version
+      changed_when: false
+
+    - name: Verify Git
+      command: git --version
+      register: git_version
+      changed_when: false
+
+    - name: Verify Terraform
+      command: terraform --version
+      register: terraform_version
+      changed_when: false
+
+    - name: Display tool versions
+      debug:
+        msg:
+          - "{{ docker_version.stdout }}"
+          - "{{ git_version.stdout }}"
+          - "{{ terraform_version.stdout }}"

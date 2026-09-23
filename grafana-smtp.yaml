@@ -1,0 +1,14 @@
+grafana:
+  env:
+    GF_SMTP_ENABLED: "true"
+    GF_SMTP_HOST: "smtp.gmail.com:587"
+    GF_SMTP_USER: "harshbhushandixit@gmail.com"
+    GF_SMTP_FROM_ADDRESS: "harshbhushandixit@gmail.com"
+    GF_SMTP_FROM_NAME: "CloudCart Grafana"
+    GF_SMTP_STARTTLS_POLICY: "MandatoryStartTLS"
+
+  envValueFrom:
+    GF_SMTP_PASSWORD:
+      secretKeyRef:
+        name: grafana-smtp-secret
+        key: GF_SMTP_PASSWORD
